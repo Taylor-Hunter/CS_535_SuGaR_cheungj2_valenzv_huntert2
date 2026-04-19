@@ -1,3 +1,124 @@
+# CS 535 Final Project – SuGaR Extension
+
+## Project Description
+
+This repository is a fork of the official SuGaR implementation, developed for the CS 535 Final Project at SUNY Polytechnic Institute.
+
+The goal of this project is to explore Surface-Aligned Gaussian Splatting (SuGaR) and evaluate its ability to convert 3D Gaussian splatting representations into structured mesh-based geometry for efficient 3D mesh reconstruction and high-quality mesh rendering.
+
+We reproduce parts of the original method and perform additional experiments using modified configurations and datasets from the Mip-NeRF 360 collection.
+
+## Team Members
+
+- Taylor Hunter (huntert2)
+- Vito Valenzano (valenzv)  
+- J. Cheung (cheungj2)
+
+## Modifications
+
+The following changes were made to the original SuGaR implementation:
+
+- **Reduced training iterations** to accommodate hardware and time constraints in academic environment
+- **Modified checkpoint behavior** to allow intermediate progress saving and resume capability
+- **Fixed evaluation pipeline assumptions** for systems without full 30,000+ iteration training
+- **Adjusted training settings** including refinement steps and mesh resolution to improve runtime performance
+- **Applied the method to Mip-NeRF 360 dataset scenes** including flowers and garden scenes not extensively tested in original experiments
+- **Enhanced documentation** with comprehensive setup instructions for educational use
+- **Optimized parameters** for academic workstation constraints while maintaining result quality
+- **Added troubleshooting guidance** for common CUDA and GPU memory issues encountered during testing
+
+These modifications were necessary to successfully run experiments within practical academic limits while maintaining meaningful and reproducible results.
+
+## Dataset
+
+Experiments were conducted using scenes from the Mip-NeRF 360 dataset.
+
+Example scenes tested include:
+- **Flowers scene** (Dataset Part 2 - 4.2 GB)
+- **Garden scene** (Dataset Part 1 - 11 GB) 
+- Additional outdoor scenes for validation
+
+**To use the dataset:**
+
+1. **Download** from the official Mip-NeRF 360 dataset source: [https://jonbarron.info/mipnerf360/](https://jonbarron.info/mipnerf360/)
+2. **Extract** the downloaded files to your preferred directory
+3. **Place** the dataset in the appropriate data directory as expected by the SuGaR codebase
+4. **Update** dataset paths in configuration files if necessary
+5. **Verify** the dataset comes pre-formatted in COLMAP structure, ready for immediate use
+
+## How to Run
+
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-link> --recursive
+   cd CS_535_SuGaR_cheungj2_valenzv_huntert2
+   ```
+
+2. **Install dependencies** (see Setup section below)
+
+3. **Create and activate environment:**
+   ```bash
+   python install.py
+   conda activate sugar
+   ```
+
+4. **Run full SuGaR pipeline:**
+   ```bash
+   python train_full_pipeline.py -s <path_to_dataset> -r "dn_consistency" --high_poly True --export_obj True
+   ```
+
+5. **Example with our test dataset:**
+   ```bash
+   python train_full_pipeline.py -s ./datasets/flowers -r "dn_consistency" --high_poly True --export_obj True
+   ```
+
+6. **For faster testing:**
+   ```bash
+   python train_full_pipeline.py -s <path_to_dataset> -r "dn_consistency" --low_poly True --refinement_time "short"
+   ```
+
+**Note:** Full training can take 10-20+ hours depending on hardware. Results are saved in the `./output/` directory.
+
+## Setup
+
+This project requires:
+
+- **Python 3.9** (managed through conda)
+- **PyTorch with CUDA support**
+- **CUDA Toolkit 11.8**
+- **CUDA-enabled GPU** (mandatory - integrated graphics insufficient)
+- **C++ Compiler** compatible with CUDA SDK
+- **16GB+ RAM** recommended
+- **15GB+ free storage** for datasets and outputs
+
+**Install dependencies:**
+```bash
+# Automated installation (recommended)
+python install.py
+conda activate sugar
+
+# Manual installation if needed
+conda env create -f environment.yml
+conda activate sugar
+```
+
+**Ensure CUDA is properly configured** for GPU acceleration. Verify installation with:
+```bash
+python -c "import torch; print(torch.cuda.is_available())"
+```
+
+## Notes
+
+- **Training time** increases significantly with high-resolution settings and long refinement periods
+- **GPU requirements** are strict - consumer hardware may struggle, lab workstations recommended
+- **Memory management** becomes critical with large datasets; reduce `--square_size` if encountering GPU memory issues
+- **Results quality** may vary depending on GPU performance and training duration
+- **Windows compatibility** may require manual path adjustments due to known codebase limitations
+- **Checkpoint saving** allows resuming interrupted training sessions
+- Use `--refinement_time "short"` for initial testing to reduce computational requirements
+
+---
+
 <div align="center">
 
 # SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering
