@@ -8,6 +8,7 @@ The goal of this project is to explore Surface-Aligned Gaussian Splatting (SuGaR
 
 We reproduce parts of the original method and perform additional experiments using modified configurations and datasets from the Mip-NeRF 360 collection.
 
+
 ## Team Members
 
 - Jaden Cheung (cheungj2)
