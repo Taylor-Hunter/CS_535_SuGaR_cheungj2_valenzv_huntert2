@@ -1,3 +1,183 @@
+# CS 535 Final Project – SuGaR Extension
+
+## Project Description
+
+This repository is a fork of the official SuGaR implementation, developed for the CS 535 Final Project at SUNY Polytechnic Institute.
+
+The goal of this project is to explore Surface-Aligned Gaussian Splatting (SuGaR) and evaluate its ability to convert 3D Gaussian splatting representations into structured mesh-based geometry for efficient 3D mesh reconstruction and high-quality mesh rendering.
+
+We reproduce parts of the original method and perform additional experiments using modified configurations and datasets from the Mip-NeRF 360 collection.
+
+## Team Members
+
+- Jaden Cheung (cheungj2)
+- Taylor Hunter (huntert2)
+- Vito Valenzano (valenzv)  
+
+## Modifications
+
+The following changes were made to the original SuGaR implementation:
+
+- **Reduced training iterations** to accommodate hardware and time constraints in academic environment
+- **Modified checkpoint behavior** to allow intermediate progress saving and resume capability
+- **Fixed evaluation pipeline assumptions** for systems without full 30,000+ iteration training
+- **Adjusted training settings** including refinement steps and mesh resolution to improve runtime performance
+- **Applied the method to Mip-NeRF 360 dataset scenes** including the tree scene (Dataset Part 2) as our primary new experimental contribution and garden scene (Dataset Part 1) for baseline comparison
+- **Enhanced documentation** with comprehensive setup instructions for educational use
+- **Optimized parameters** for academic workstation constraints while maintaining result quality
+- **Added troubleshooting guidance** for common CUDA and GPU memory issues encountered during testing
+- **Environment compatibility modifications** including Python version adjustments for specific team member setups
+- **Low-poly configuration testing** with reduced mesh complexity for systems with limited computational resources
+- **Created automated dataset download script** (`download_mipnerf360_datasets.py`) with progress tracking, error handling, command-line interface, and automatic dataset acquisition for streamlined setup
+
+These modifications were necessary to successfully run experiments within practical academic limits while maintaining meaningful and reproducible results.
+
+## Dataset
+
+Experiments were conducted using scenes from the Mip-NeRF 360 dataset.
+
+**Datasets used:**
+- **Dataset Part 1** (11 GB) - Contains the original garden scene from the paper used for baseline comparison
+- **Dataset Part 2** (4.2 GB) - Contains the tree scene that we used as our **new method implementation** and primary experimental focus
+- Additional outdoor scenes for validation
+
+**Dataset Selection Rationale:**
+- **Dataset Part 1**: Provides the original scenes tested in the SuGaR paper for reproduction and validation
+- **Dataset Part 2**: Our team's primary contribution - applying SuGaR methodology to the tree scene as a new experimental dataset not extensively covered in the original research
+
+**To use the dataset:**
+
+**Option 1: Automated Download**
+```bash
+# Download tree scene (our primary experiments) 
+python download_mipnerf360_datasets.py --part2-only
+
+# Download garden scene (baseline comparison)
+python download_mipnerf360_datasets.py --part1-only
+
+# Download both datasets
+python download_mipnerf360_datasets.py
+```
+
+**Option 2: Manual Download**
+1. **Download** from the official Mip-NeRF 360 dataset source: [https://jonbarron.info/mipnerf360/](https://jonbarron.info/mipnerf360/)
+2. **Extract** the downloaded files to your preferred directory
+3. **Place** the dataset in the appropriate data directory as expected by the SuGaR codebase
+4. **Update** dataset paths in configuration files if necessary
+5. **Verify** the dataset comes pre-formatted in COLMAP structure, ready for immediate use
+
+## How to Run
+
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-link> --recursive
+   cd CS_535_SuGaR_cheungj2_valenzv_huntert2
+   ```
+
+2. **Install dependencies** (see Setup section below)
+
+3. **Create and activate environment:**
+   ```bash
+   python install.py
+   conda activate sugar
+   ```
+
+4. **Download datasets:**
+   ```bash
+   # Download tree scene (our primary experimental dataset)
+   python download_mipnerf360_datasets.py --part2-only
+   
+   # Or download both datasets for full comparison  
+   python download_mipnerf360_datasets.py
+   ```
+
+5. **Run full SuGaR pipeline:**
+   ```bash
+   python train_full_pipeline.py -s <path_to_dataset> -r "dn_consistency" --high_poly True --export_obj True
+   ```
+
+6. **Example with our test dataset:**
+   ```bash
+   python train_full_pipeline.py -s ./datasets/mipnerf360/part2_tree -r "dn_consistency" --high_poly True --export_obj True
+   ```
+
+6. **For faster testing:**
+   ```bash
+   python train_full_pipeline.py -s <path_to_dataset> -r "dn_consistency" --low_poly True --refinement_time "short"
+   ```
+
+**Note:** Full training can take 10-20+ hours depending on hardware. Results are saved in the `./output/` directory.
+
+## Setup
+
+### System Requirements
+
+This project requires:
+
+- **Operating System**: Linux recommended (Ubuntu 24.04.1 LTS tested) or WSL (Windows Subsystem for Linux)
+- **Python 3.9.18** (managed through conda)
+- **PyTorch 2.0.1** with CUDA support
+- **CUDA Toolkit 11.8**
+- **PyTorch3D 0.7.4**
+- **Open3D 0.17.0**
+- **CUDA-enabled GPU** (mandatory - integrated graphics insufficient)
+- **C++ Compiler** compatible with CUDA SDK
+- **16GB+ RAM** recommended
+- **15GB+ free storage** for datasets and outputs
+
+### Tested Environment Configuration
+
+Our team successfully tested with the following configuration:
+- **Ubuntu 24.04.1 LTS (noble)** via WSL
+- **Python 3.9.18**
+- **PyTorch 2.0.1**
+- **CUDA 11.8**
+- **PyTorch3D 0.7.4** 
+- **Open3D 0.17.0**
+
+### Installation Instructions
+
+**Automated installation (recommended):**
+```bash
+python install.py
+conda activate sugar
+```
+
+**Manual installation if needed:**
+```bash
+conda env create -f environment.yml
+conda activate sugar
+```
+
+**Note on Python Version**: Some team members needed to modify the Python version in their local environment for compatibility, particularly when running low-poly configurations.
+
+**Verify installation:**
+```bash
+python -c "import torch; print(torch.cuda.is_available())"
+python -c "import torch; print('PyTorch version:', torch.__version__)"
+python -c "import open3d; print('Open3D version:', open3d.__version__)"
+```
+
+### WSL Setup (Windows Users)
+
+If using Windows Subsystem for Linux:
+1. Install WSL with Ubuntu 24.04.1 LTS
+2. Install CUDA drivers for WSL
+3. Follow the standard Linux installation process above
+
+## Notes
+
+- **Training time** increases significantly with high-resolution settings and long refinement periods
+- **GPU requirements** are strict - consumer hardware may struggle, lab workstations recommended
+- **Memory management** becomes critical with large datasets; reduce `--square_size` if encountering GPU memory issues
+- **Results quality** may vary depending on GPU performance and training duration
+- **Windows compatibility** may require manual path adjustments due to known codebase limitations
+- **Checkpoint saving** allows resuming interrupted training sessions
+- Use `--refinement_time "short"` for initial testing to reduce computational requirements
+
+
+---
+
 <div align="center">
 
 # SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering

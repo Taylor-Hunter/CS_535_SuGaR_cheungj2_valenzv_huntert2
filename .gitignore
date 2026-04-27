@@ -11,6 +11,11 @@ dev_render_blender_scene.py
 test_environment.yml
 blender/dev_mode.py
 
+# Large dataset files
+datasets/
+*.zip
+mipnerf360*
+
 # To remove
 frosting*
 extract_shell.py
