@@ -10,9 +10,9 @@ We reproduce parts of the original method and perform additional experiments usi
 
 ## Team Members
 
+- Jaden Cheung (cheungj2)
 - Taylor Hunter (huntert2)
 - Vito Valenzano (valenzv)  
-- J. Cheung (cheungj2)
 
 ## Modifications
 
@@ -22,10 +22,13 @@ The following changes were made to the original SuGaR implementation:
 - **Modified checkpoint behavior** to allow intermediate progress saving and resume capability
 - **Fixed evaluation pipeline assumptions** for systems without full 30,000+ iteration training
 - **Adjusted training settings** including refinement steps and mesh resolution to improve runtime performance
-- **Applied the method to Mip-NeRF 360 dataset scenes** including flowers and garden scenes not extensively tested in original experiments
+- **Applied the method to Mip-NeRF 360 dataset scenes** including the tree scene (Dataset Part 2) as our primary new experimental contribution and garden scene (Dataset Part 1) for baseline comparison
 - **Enhanced documentation** with comprehensive setup instructions for educational use
 - **Optimized parameters** for academic workstation constraints while maintaining result quality
 - **Added troubleshooting guidance** for common CUDA and GPU memory issues encountered during testing
+- **Environment compatibility modifications** including Python version adjustments for specific team member setups
+- **Low-poly configuration testing** with reduced mesh complexity for systems with limited computational resources
+- **Created automated dataset download script** (`download_mipnerf360_datasets.py`) with progress tracking, error handling, command-line interface, and automatic dataset acquisition for streamlined setup
 
 These modifications were necessary to successfully run experiments within practical academic limits while maintaining meaningful and reproducible results.
 
@@ -33,13 +36,30 @@ These modifications were necessary to successfully run experiments within practi
 
 Experiments were conducted using scenes from the Mip-NeRF 360 dataset.
 
-Example scenes tested include:
-- **Flowers scene** (Dataset Part 2 - 4.2 GB)
-- **Garden scene** (Dataset Part 1 - 11 GB) 
+**Datasets used:**
+- **Dataset Part 1** (11 GB) - Contains the original garden scene from the paper used for baseline comparison
+- **Dataset Part 2** (4.2 GB) - Contains the tree scene that we used as our **new method implementation** and primary experimental focus
 - Additional outdoor scenes for validation
+
+**Dataset Selection Rationale:**
+- **Dataset Part 1**: Provides the original scenes tested in the SuGaR paper for reproduction and validation
+- **Dataset Part 2**: Our team's primary contribution - applying SuGaR methodology to the tree scene as a new experimental dataset not extensively covered in the original research
 
 **To use the dataset:**
 
+**Option 1: Automated Download**
+```bash
+# Download tree scene (our primary experiments) 
+python download_mipnerf360_datasets.py --part2-only
+
+# Download garden scene (baseline comparison)
+python download_mipnerf360_datasets.py --part1-only
+
+# Download both datasets
+python download_mipnerf360_datasets.py
+```
+
+**Option 2: Manual Download**
 1. **Download** from the official Mip-NeRF 360 dataset source: [https://jonbarron.info/mipnerf360/](https://jonbarron.info/mipnerf360/)
 2. **Extract** the downloaded files to your preferred directory
 3. **Place** the dataset in the appropriate data directory as expected by the SuGaR codebase
@@ -62,14 +82,23 @@ Example scenes tested include:
    conda activate sugar
    ```
 
-4. **Run full SuGaR pipeline:**
+4. **Download datasets:**
+   ```bash
+   # Download tree scene (our primary experimental dataset)
+   python download_mipnerf360_datasets.py --part2-only
+   
+   # Or download both datasets for full comparison  
+   python download_mipnerf360_datasets.py
+   ```
+
+5. **Run full SuGaR pipeline:**
    ```bash
    python train_full_pipeline.py -s <path_to_dataset> -r "dn_consistency" --high_poly True --export_obj True
    ```
 
-5. **Example with our test dataset:**
+6. **Example with our test dataset:**
    ```bash
-   python train_full_pipeline.py -s ./datasets/flowers -r "dn_consistency" --high_poly True --export_obj True
+   python train_full_pipeline.py -s ./datasets/mipnerf360/part2_tree -r "dn_consistency" --high_poly True --export_obj True
    ```
 
 6. **For faster testing:**
@@ -81,31 +110,60 @@ Example scenes tested include:
 
 ## Setup
 
+### System Requirements
+
 This project requires:
 
-- **Python 3.9** (managed through conda)
-- **PyTorch with CUDA support**
+- **Operating System**: Linux recommended (Ubuntu 24.04.1 LTS tested) or WSL (Windows Subsystem for Linux)
+- **Python 3.9.18** (managed through conda)
+- **PyTorch 2.0.1** with CUDA support
 - **CUDA Toolkit 11.8**
+- **PyTorch3D 0.7.4**
+- **Open3D 0.17.0**
 - **CUDA-enabled GPU** (mandatory - integrated graphics insufficient)
 - **C++ Compiler** compatible with CUDA SDK
 - **16GB+ RAM** recommended
 - **15GB+ free storage** for datasets and outputs
 
-**Install dependencies:**
+### Tested Environment Configuration
+
+Our team successfully tested with the following configuration:
+- **Ubuntu 24.04.1 LTS (noble)** via WSL
+- **Python 3.9.18**
+- **PyTorch 2.0.1**
+- **CUDA 11.8**
+- **PyTorch3D 0.7.4** 
+- **Open3D 0.17.0**
+
+### Installation Instructions
+
+**Automated installation (recommended):**
 ```bash
-# Automated installation (recommended)
 python install.py
 conda activate sugar
+```
 
-# Manual installation if needed
+**Manual installation if needed:**
+```bash
 conda env create -f environment.yml
 conda activate sugar
 ```
 
-**Ensure CUDA is properly configured** for GPU acceleration. Verify installation with:
+**Note on Python Version**: Some team members needed to modify the Python version in their local environment for compatibility, particularly when running low-poly configurations.
+
+**Verify installation:**
 ```bash
 python -c "import torch; print(torch.cuda.is_available())"
+python -c "import torch; print('PyTorch version:', torch.__version__)"
+python -c "import open3d; print('Open3D version:', open3d.__version__)"
 ```
+
+### WSL Setup (Windows Users)
+
+If using Windows Subsystem for Linux:
+1. Install WSL with Ubuntu 24.04.1 LTS
+2. Install CUDA drivers for WSL
+3. Follow the standard Linux installation process above
 
 ## Notes
 
@@ -116,6 +174,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 - **Windows compatibility** may require manual path adjustments due to known codebase limitations
 - **Checkpoint saving** allows resuming interrupted training sessions
 - Use `--refinement_time "short"` for initial testing to reduce computational requirements
+
 
 ---
 
